@@ -1,8 +1,17 @@
+/*
+ * @Descripttion: 描述
+ * @version: 版本
+ * @Author: xiongbin
+ * @Date: 2019-11-08 14:54:24
+ * @LastEditors: 1490251116@qq.com
+ * @LastEditTime: 2019-12-02 14:38:05
+
+ */
 import Vue from 'vue'
 import Vuex from 'vuex'
 Vue.use(Vuex)
 
-import { httpPost, formPost ,httpGet,formGet} from '../util/post'
+import { formPost ,httpGet,formGet,httpPost} from '../util/post'
 const vm = Vue
 
 export default new Vuex.Store({
@@ -11,13 +20,11 @@ export default new Vuex.Store({
     avatarUrl: "",
     mobile: "",
     roleKeys: [],
-    token: "",
+    sessionId: "",
     trueName: "",
     userId: null,
     userName: "",
     routerPath: [],
-    sectionList:null,
-    sectionIconList:null,
     resourceCodeList:[]
   },
   mutations: { //数据更新
@@ -25,29 +32,33 @@ export default new Vuex.Store({
       state[v.name] = v.value
     },
   },
-  actions: {  
+  actions: {
     loginhandler ({}, param) { //用户登录
       httpPost('LOGIN', param).then(res => {
-        if (!res) return;
-        if(res.code == 200){
-            window.vm.$message({
-              message: '登录成功',
-              type: 'success'
-            });
-            sessionStorage.setItem('token', res.data.token);
-            setTimeout(() => {
-              window.vm.$router.push({
-                name: 'index'
-              })
-            }, 1000);
-          }
+        if(res.code===200){
+          window.vm.$message({
+            message: '登录成功',
+            type: 'success'
+          });
+          sessionStorage.setItem('sessionId', res.data.token);
+          setTimeout(() => {
+            window.vm.$router.push({
+              name: 'home'
+            })
+          }, 1000);
+        }else{
+          window.vm.$message({
+            message: res.message,
+            type: 'error'
+          });
+        }
       });
     },
     loginOut () { //用户登出
       formPost('LOGINOUT').then(res => {
         if (!res) return;
         sessionStorage.removeItem('user');
-        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('sessionId');
         window.vm.$router.push({
           name: 'login'
         })
@@ -58,11 +69,9 @@ export default new Vuex.Store({
         httpGet('USERINFO').then(res => {
           if (!res) return;
           sessionStorage.setItem('user', JSON.stringify(res.data));
-          console.log(JSON.stringify(res.data))
         })
       )
     },
-
     getMenuResource({commit}){//获取资源码
       let param={
         userId:JSON.parse(sessionStorage.getItem("user")).id,
@@ -70,7 +79,6 @@ export default new Vuex.Store({
       }
       return Promise.resolve(
       formGet('GETMENURESOURCE',param).then(res => {
-        console.log(JSON.stringify(res.data))
         commit("upDate", {
           value: res.data,
           name: 'resourceCodeList'
@@ -87,7 +95,6 @@ export default new Vuex.Store({
       }
       return Promise.resolve(
       formGet('PERMISSIONGETMENU',param).then(res => {
-        console.log(res)
         commit("upDate", {
           value: res.data,
           name: 'routerPath'

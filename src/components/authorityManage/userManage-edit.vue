@@ -10,14 +10,14 @@
         class="demo-ruleForm"
       >
         <el-form-item label="角色名称">
-          <el-input v-model="ruleForm.roleName"  placeholder="请输入"></el-input>
+          <el-input v-model="ruleForm.roleName" maxlength="10" placeholder="请输入"></el-input>
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
             type="textarea"
             rows="5"
             maxlength="60"
-            v-model="ruleForm.roleDesc"
+            v-model="ruleForm.roleDescribe"
             placeholder="请输入"
           ></el-input>
         </el-form-item>
@@ -42,21 +42,22 @@
 </template>
 
 <script>
-import { httpPost, formPost, httpGet, formGet, formPut } from "../../util/post";
-import routerPath from "../../views/index/routerPath";
+import { httpPost, formPost, httpPut } from "../../util/post";
+import { promises } from "fs";
+import { debug } from "util";
 export default {
   data() {
     return {
       active_nature: {},
       allPermission: [],
       defaultProps: {
-        children: "children",
-        label: "name"
+        children: "childPermissions",
+        label: "permissionName"
       },
       ruleForm: {
         roleName: "",
-        roleDesc: "",
-        permissionList: []
+        roleDescribe: "",
+        topPermissionNames: []
       },
       permissionIds: [],
       rlid: "",
@@ -66,7 +67,7 @@ export default {
           { required: true, message: "请输入角色名称", trigger: "blur" },
           { min: 1, max: 10, message: "长度在 1 到 10 个字符", trigger: "blur" }
         ],
-        roleDesc: [
+        roleDescribe: [
           { min: 0, max: 60, message: "长度最大为60个字符", trigger: "blur" }
         ]
       }
@@ -74,15 +75,7 @@ export default {
   },
   created() {
     this.rlid = this.$router.currentRoute.query.rlid;
-    this.getPermissionList();
-    if (this.rlid != 0) {
-      let description = JSON.parse(sessionStorage.getItem("description"));
-      console.log(description);
-      this.ruleForm.roleName = description.roleName;
-      this.ruleForm.roleDesc = description.roleDesc;
-    }
-    // this.jurisdiction();
-    // this.allPermission = routerPath.routerPath;
+    this.jurisdiction();
   },
   methods: {
     saveSumbit() {
@@ -95,124 +88,78 @@ export default {
       }
       let param = {
         roleName: this.ruleForm.roleName,
-        roleDesc: this.ruleForm.roleDesc,
-        permissionList: this.permissionIds
+        roleDescribe: this.ruleForm.roleDescribe,
+        permissionIds: this.permissionIds
       };
-      if (this.rlid != 0) {
-        param.roleId = this.rlid;
-        this.roleUpdate(param);
-      } else {
-        this.roleAdd(param);
+      if (this.rlid) {
+        param.id = this.rlid;
       }
-    },
-    roleUpdate(param) {
-      formPut("ROLEUPDATE", param).then(res => {
+      formPost("SAVEAPPROLE", param).then(res => {
         if (!res) return;
-        this.$message.success("编辑成功");
-        this.backRemove();
-      });
-    },
-    roleAdd(param) {
-      formPost("ROLEADD", param).then(res => {
-        if (!res) return;
-        this.$message.success("增加成功");
+        this.$message.success("保存成功");
         this.backRemove();
       });
     },
     backRemove() {
       this.$router.go(-1);
     },
-    // getAllRole() {
-    //   return Promise.resolve(
-    //     httpGet("PERMISSIONGETMENULIST",JSON.parse(sessionStorage.getItem("user")).id).then(res => {
-    //       if (!res) return;
+    getAllRole() {
+      return Promise.resolve(
+        formPost("GETALLAPPPERMISSION", {}).then(res => {
+          if (!res) return;
+          this.active_nature = res.bussData;
+          this.allPermission = res.bussData;
+        })
+      );
+    },
 
-    //       // this.active_nature = res.bussData;
-    //       // this.allPermission = res.bussData;
-    //     })
-    //   );
-    // },
-
-    // roleInfoById() {
-    //   let param = {
-    //     roleId: this.rlid
-    //   };
-    //   return Promise.resolve(
-    //     formPost("GETROLEINFOBYROLEID", param).then(res => {
-    //       if (!res) return;
-    //       let data = res.bussData;
-    //       this.ruleForm = {
-    //         roleName: data.roleName,
-    //         roleDescribe: data.roleDescribe,
-    //         topPermissionNames: data.topPermissionNames.split(",")
-    //       };
-    //       this.pIds = res.bussData.permissionIds;
-    //       let childId = [];
-    //       for (var i = 0; i < res.bussData.permissionIds.length; i++) {
-    //         this.allPermission.forEach(e => {
-    //           if (res.bussData.permissionIds[i] == e.id) {
-    //             res.bussData.permissionIds.splice(i, 1);
-    //             e.childPermissions.forEach(child => {
-    //               if (child.childPermissions.length > 0) {
-    //                 childId.push(child.id);
-    //               }
-    //             });
-    //           }
-    //         });
-    //       }
-    //       for (var i = 0; i < res.bussData.permissionIds.length; i++) {
-    //         childId.forEach(j => {
-    //           if (res.bussData.permissionIds[i] == j) {
-    //             res.bussData.permissionIds.splice(i, 1);
-    //           }
-    //         });
-    //       }
-    //       this.$refs.tree.setCheckedKeys(res.bussData.permissionIds);
-    //     })
-    //   );
-    // },
-
-    // jurisdiction() {
-    // if (this.rlid) {
-    //   this.getAllRole().then(val => {
-    //     this.roleInfoById();
-    //   });
-    // } else {
-    //   this.getAllRole();
-    // }
-    // },
-    getPermissionList() {
+    roleInfoById() {
       let param = {
-        codeType: "role"
+        roleId: this.rlid
       };
-      if (this.rlid != 0) {
-        param.id = this.rlid;
-      }
-      formGet("PERMISSIONGETMENU", param).then(res => {
-        this.allPermission = res.data;
-        let checkedKeys = [];
-        res.data.forEach(ele => {
-          if (ele.children && ele.children.length > 0) {
-            ele.children.forEach(e => {
-              if (e.state == 1) {
-                if (e.children && e.children.length > 0) {
-                  e.children.forEach(three => {
-                    if (three.state == 1) {
-                      checkedKeys.push(three.id);
-                    }
-                  });
-                } else {
-                  checkedKeys.push(e.id);
-                }
+      return Promise.resolve(
+        formPost("GETROLEINFOBYROLEID", param).then(res => {
+          if (!res) return;
+          let data = res.bussData;
+          this.ruleForm = {
+            roleName: data.roleName,
+            roleDescribe: data.roleDescribe,
+            topPermissionNames: data.topPermissionNames.split(",")
+          };
+          this.pIds = res.bussData.permissionIds;
+          let childId = [];
+          for (var i = 0; i < res.bussData.permissionIds.length; i++) {
+            this.allPermission.forEach(e => {
+              if (res.bussData.permissionIds[i] == e.id) {
+                res.bussData.permissionIds.splice(i, 1);
+                e.childPermissions.forEach(child => {
+                  if (child.childPermissions.length > 0) {
+                    childId.push(child.id);
+                  }
+                });
               }
             });
-          }else{
-            if(ele.state == 1)
-            checkedKeys.push(ele.id);
           }
+          for (var i = 0; i < res.bussData.permissionIds.length; i++) {
+            childId.forEach(j => {
+              if (res.bussData.permissionIds[i] == j) {
+                res.bussData.permissionIds.splice(i, 1);
+              }
+            });
+          }
+          this.$refs.tree.setCheckedKeys(res.bussData.permissionIds);
+        })
+      );
+    },
+
+    jurisdiction() {
+      if (this.rlid) {
+        this.getAllRole().then(val => {
+          this.roleInfoById();
         });
-        this.$refs.tree.setCheckedKeys(checkedKeys);
-      });
+      } else {
+        this.getAllRole();
+      }
     }
   }
 };

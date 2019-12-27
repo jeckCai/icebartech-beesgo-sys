@@ -7,8 +7,9 @@
                       <img src="../../assets/images/admin.png">
                       <span>XXXXX</span>
           </div>-->
-          <span class="title">蜜蜂GO后台管理系统</span>
-          <p class="min-title">欢迎{{userName}}登录后台管理系统!</p>
+          
+          <span class="title" style="cursor: pointer;" @click="toHome">蜜蜂GO品牌管理系统</span>
+          <p class="min-title" style="cursor: pointer;" @click="toHome">欢迎{{userName}}登录蜜蜂GO品牌管理系统!</p>
           <el-dropdown class="header-right" @command="handleCommand">
             <span class="el-dropdown-link">
               <!-- <img v-if="avatarUrl" :src="avatarUrl"> -->
@@ -30,9 +31,10 @@
             style="height:100%;padding-top: 80px;"
             unique-opened
             :default-active="activeRouter"
+            active-text-color="#fff"
             background-color="#fff"
             router
-            text-color="#333"
+            text-color="#606266"
           >
             <el-submenu
               v-for="(vOne) in routerPath"
@@ -78,7 +80,6 @@
 </template>
 <script>
 import { mapState, mapActions } from "vuex";
-// import { routerPath } from "../../views/index/routerPath";
 export default {
   data() {
     return {
@@ -92,7 +93,7 @@ export default {
       this.getMenuList();
       this.getMenuResource();
     });
-    let active = "/" + this.$router.currentRoute.path.split("/")[1];
+    let active = this.$router.currentRoute.path.split("/")[1];
     this.activeRouter = active;
   },
   computed: {
@@ -100,21 +101,10 @@ export default {
   },
   updated() {
     let user = JSON.parse(sessionStorage.getItem("user"));
-    console.log(user)
     this.userName = user.loginName;
-    // this.avatarUrl = user.headImage;
-    // this.$store.commit("upDate",{
-    //       value: user.resourceCodeList,
-    //       name: 'resourceCodeList'
-    //     });
   },
   methods: {
-    ...mapActions([
-      "loginOut",
-      "getMenuList",
-      "getUserInfo",
-      "getMenuResource"
-    ]),
+    ...mapActions(["loginOut", "getMenuList", "getUserInfo", "getMenuResource"]),
     handleCommand(command) {
       if (command == "1") {
         this.loginOut();
@@ -123,17 +113,17 @@ export default {
           name: "rechargePassword"
         });
       }
+    },
+    toHome() {
+      this.$router.push({
+        name: "home"
+      });
     }
-    // toHome() {
-    //   this.$router.push({
-    //     name: "home"
-    //   });
-    // }
   },
   components: {},
   watch: {
     $route() {
-      this.activeRouter = "/" + this.$router.currentRoute.path.split("/")[1];
+      this.activeRouter =this.$router.currentRoute.path.split("/")[1];
     }
   }
 };
@@ -331,7 +321,6 @@ body {
 .title-box {
   background-color: #fff;
   height: 80px;
-  margin-bottom: 10px;
 }
 .title-box .el-form-item,
 .title-box .el-button {
@@ -363,7 +352,13 @@ input[type="file"] {
 .addImg img {
   width: 110px;
   height: 110px;
-  margin-bottom: 10px;
+}
+.addImg .delete {
+  width: 30px;
+  height: 30px;
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 .addImg .deleteIcon{
   position: absolute;
@@ -373,13 +368,6 @@ input[type="file"] {
     font-weight: bold;
     border: 1px solid red;
     border-radius: 10px;
-}
-.addImg .delete {
-  width: 30px;
-  height: 30px;
-  position: absolute;
-  right: 0;
-  top: -12px;
 }
 .blue {
   color: #409eff;
@@ -393,25 +381,35 @@ input[type="file"] {
 .yellow {
   color: #ffbb00;
 }
-.left-btn{
+.xb .input_modal {
+  background-color: #fff;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 20px;
+}
+.xb .input_modal .input-item:first-child {
+  margin-left: 36px;
+}
+.xb .input_modal .input-item {
+  display: inline-block;
+  margin-right: 20px;
+  clear: both;
+  height: 50px;
+  line-height: 50px;
+  position: relative;
+}
+.xb .input_modal .input-item .el-input {
+  width: 168px;
   margin-left: 10px;
 }
-.right-btn{
-  margin-right: 10px;
-}
-.flex{
+.flex {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
 }
-.space-between{
- justify-content:space-between
-}
-.element::-webkit-scrollbar {display:none}
-.el-loading-spinner .el-loading-text{
+.el-loading-spinner .el-loading-text {
   font-size: 20px;
 }
-.el-loading-spinner i{
+.el-loading-spinner i {
   font-size: 30px;
 }
 </style>

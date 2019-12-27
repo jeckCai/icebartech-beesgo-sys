@@ -55,11 +55,11 @@ export default {
       default:'summernote'
     }
   },
-  watch: {},
+  watch: {  },
   mounted() {
     setTimeout(() => {
       $("#"+this.id).summernote("code", this.content);
-    }, 1000);
+    }, 2000);
 
     $("#"+this.id).summernote({
       toolbar: [
@@ -83,35 +83,37 @@ export default {
       lineNumbers: false,
       callbacks: {
         onImageUpload: async files => {
-          let file = files[0];
-          const param = {
-            suffix: file.name.split(".")[1], // 文件后缀  png
-            contentType: file.type // 文件类型  image/png
-          };
-          formPost("PUBLICFORMUPLOAD", param)
-            .then(result => {
-              console.log(result.data.fileUrl);
-              let upLoadUrl = result.data.uploadUrl;
-              let downloadUrl = result.data.fileUrl;
-              let fileKey = result.data.fileKey;
-              this.http
-                .put(upLoadUrl, file, {
-                  headers: {
-                    "Content-Type": file.type
-                  }
-                })
-                .then(res => {
-                 $("#"+this.id).summernote(
-                    "editor.insertImage",
-                    downloadUrl,
-                    $image => {
-                      $image.attr("src", downloadUrl);
-                      $image.attr("alt", fileKey);
-                    }
-                  );
-                });
-            })
-            .catch(err => {});
+          console.log(files)
+          this.upImage(files,files.length)
+          // let file = files[0]; 
+          // const param = {
+          //   suffix: file.name.split(".")[1], // 文件后缀  png
+          //   contentType: file.type // 文件类型  image/png
+          // };
+          // formPost("PUBLICFORMUPLOAD", param)
+          //   .then(result => {
+          //     console.log(result.data.fileUrl);
+          //     let upLoadUrl = result.data.uploadUrl;
+          //     let downloadUrl = result.data.fileUrl;
+          //     let fileKey = result.data.fileKey;
+          //     this.http
+          //       .put(upLoadUrl, file, {
+          //         headers: {
+          //           "Content-Type": file.type
+          //         }
+          //       })
+          //       .then(res => {
+          //        $("#"+this.id).summernote(
+          //           "editor.insertImage",
+          //           downloadUrl,
+          //           $image => {
+          //             $image.attr("src", downloadUrl);
+          //             $image.attr("alt", fileKey);
+          //           }
+          //         );
+          //       });
+          //   })
+          //   .catch(err => {});
           
         },
         onChange: (contents, $editable) => {
@@ -123,7 +125,40 @@ export default {
    
   },
   methods: {
-   
+    upImage(files,length){
+      if(length==0){
+        return;
+      }
+       const param = {
+            suffix: files[length-1].name.split(".")[1], // 文件后缀  png
+            contentType:  files[length-1].type // 文件类型  image/png
+          };
+          formPost("PUBLICFORMUPLOAD", param)
+            .then(result => {
+              console.log(result.data.fileUrl);
+              let upLoadUrl = result.data.uploadUrl;
+              let downloadUrl = result.data.fileUrl;
+              let fileKey = result.data.fileKey;
+              this.http
+                .put(upLoadUrl, files[length-1], {
+                  headers: {
+                    "Content-Type": files[length-1].type
+                  }
+                })
+                .then(res => {
+                 $("#"+this.id).summernote(
+                    "editor.insertImage",
+                    downloadUrl,
+                    $image => {
+                      $image.attr("src", downloadUrl);
+                      $image.attr("alt", fileKey);
+                      this.upImage(files,length-1)
+                    }
+                  );
+                });
+            })
+            .catch(err => {});
+    }
   }
 };
 </script>

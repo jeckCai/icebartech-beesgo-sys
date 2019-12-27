@@ -1,4 +1,5 @@
 //文件\图片 上传地址获取,
+
 export default function(str) {
   let path='oss/';
   let path2='base/base/';

@@ -9,11 +9,21 @@
         label-width="100px"
         class="demo-ruleForm"
       >
-        <el-form-item label="账号名" prop="account">
-          <el-input v-model="ruleForm.account" placeholder="请输入"></el-input>
+        <el-form-item label="账号名" prop="userName">
+          <el-input
+            v-model="ruleForm.userName"
+            autocomplete="new-password"
+            :maxlength="11"
+            placeholder="请输入"
+          ></el-input>
         </el-form-item>
-        <el-form-item label="姓名" prop="nickname">
-          <el-input v-model="ruleForm.nickname"></el-input>
+        <el-form-item label="姓名" prop="mobile">
+          <el-input
+            v-model="ruleForm.mobile"
+            autocomplete="new-password"
+            placeholder="请输入"
+            :maxlength="11"
+          ></el-input>
         </el-form-item>
         <el-form-item label="登录密码" prop="password">
           <el-input
@@ -46,7 +56,7 @@
 </template>
 
 <script>
-import { httpPost, formPost, formGet } from "../../util/post";
+import { httpPost, formPost, httpPut } from "../../util/post";
 export default {
   data() {
     var passXt = (rule, value, callback) => {
@@ -60,22 +70,28 @@ export default {
     };
     return {
       ruleForm: {
-        account: "",
-        nickname: "",
+        userName: "",
+        mobile: "",
         password: "",
         confirmPassword: "",
         roleId: "",
-        loginType:'LOGIN_ADMIN_PASSWORD'
+        trueName: "",
+        avatar: ""
       },
       userId: "",
       rList: [],
       imageUrl: "",
       clear: false,
       rules: {
-        account: [
-          { required: true, message: "请填写登录账号", trigger: "blur" }
+        userName: [
+          { required: true, message: "请填写登录账号", trigger: "blur" },
+          { validator: isRightPhoneNumer, trigger: "blur" }
         ],
-        nickname: [{ required: true, message: "请填写姓名", trigger: "blur" }],
+        trueName: [{ required: true, message: "请填写姓名", trigger: "blur" }],
+        mobile: [
+          { required: true, message: "请填写手机号", trigger: "blur" },
+          { validator: isRightPhoneNumer, trigger: "blur" }
+        ],
         roleId: [
           { required: true, message: "请选择角色权限", trigger: "change" }
         ],
@@ -87,42 +103,41 @@ export default {
       }
     };
   },
-  components: {},
+  components: {
+    uploadOne: resolve => require(["../upload/uploadOne"], resolve)
+  },
   created() {
     this.userId = this.$router.currentRoute.query.acid;
     this.roleList();
     if (this.userId != 0) {
-      let description=JSON.parse(sessionStorage.getItem('description'));
-      this.ruleForm.account=description.account;
-      this.ruleForm.nickname=description.nickname;
-      this.ruleForm.roleId=description.roleId;
+      this.detailByUserId(this.userId);
     }
   },
   methods: {
-    // detailByUserId(userId) {
-    //   let param = {
-    //     userId: userId
-    //   };
-    //   formPost("FINDADMINUSERDETAILBYUSERID", param).then(res => {
-    //     if (!res) return;
-    //     this.ruleForm = {
-    //       userName: res.bussData.userName,
-    //       mobile: res.bussData.mobile,
-    //       roleId: parseInt(res.bussData.appRoleId),
-    //       trueName: res.bussData.trueName,
-    //       avatar: res.bussData.avatar
-    //     };
-    //     this.imageUrl = res.bussData.avatarUrl;
-    //   });
-    // },
+    detailByUserId(userId) {
+      let param = {
+        userId: userId
+      };
+      formPost("FINDADMINUSERDETAILBYUSERID", param).then(res => {
+        if (!res) return;
+        this.ruleForm = {
+          userName: res.bussData.userName,
+          mobile: res.bussData.mobile,
+          roleId: parseInt(res.bussData.appRoleId),
+          trueName: res.bussData.trueName,
+          avatar: res.bussData.avatar
+        };
+        this.imageUrl = res.bussData.avatarUrl;
+      });
+    },
     roleList() {
       let param = {
-        pageNumber: 1,
-        pageSize: 9999
+        pageIndex: "1",
+        pageSize: "999"
       };
-      formGet("ROLELIST", param).then(res => {
+      formPost("FINDAPPROLEBYPAGE", param).then(res => {
         if (!res) return;
-        this.rList = res.data.records;
+        this.rList = res.bussData;
       });
     },
     back() {
@@ -131,11 +146,13 @@ export default {
     saveSumbit() {
       let ruleForm = this.ruleForm;
       if (
-        !ruleForm.account ||
-        !ruleForm.nickname ||
+        !ruleForm.userName ||
+        !ruleForm.mobile ||
         !ruleForm.password ||
         !ruleForm.confirmPassword ||
-        !ruleForm.roleId
+        !ruleForm.roleId ||
+        !ruleForm.trueName ||
+        !ruleForm.avatar
       ) {
         this.$message.warning("请完善必填信息");
         return;
@@ -144,37 +161,26 @@ export default {
         this.$message.warning("两次输入密码不一致");
         return;
       }
-
+      let text;
+      if (this.userId) {
+        ruleForm.userId = this.userId;
+        text = "编辑";
+      } else {
+        text = "增加";
+      }
       this.$confirm("确定保存吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-           ruleForm.roleIds = [ruleForm.roleId];
-          if (this.userId!=0) {
-            ruleForm.id = this.userId;
-            this.userEdit(ruleForm);
-          } else {
-            this.userAdd(ruleForm);
-          }
+          httpPost("SAVEADMINUSER", ruleForm).then(res => {
+            if (!res) return;
+            this.$message.success(`${text}成功`);
+            this.back();
+          });
         })
         .catch(() => {});
-    },
-    // 用户增加
-    userAdd(ruleForm) {
-      httpPost("USERADD", ruleForm).then(res => {
-        if (!res) return;
-        this.$message.success(`增加成功`);
-        this.back();
-      });
-    },
-    userEdit(ruleForm) {
-      httpPost("USEREDIT", ruleForm).then(res => {
-        if (!res) return;
-        this.$message.success(`编辑成功`);
-        this.back();
-      });
     }
   }
 };

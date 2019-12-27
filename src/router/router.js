@@ -1,10 +1,17 @@
+/*
+ * @Descripttion: 描述
+ * @version: 版本
+ * @Author: xiongbin
+ * @Date: 2019-11-08 14:54:24
+ * @LastEditors  : Please set LastEditors
+ * @LastEditTime : 2019-12-23 16:35:10
+ */
 import Vue from 'vue'
 import Router from 'vue-router'
 
 Vue.use(Router)
 
 export default new Router({
-  // mode: 'history',
   base: '/sys/',
   routes: [{
     path: '/login', //登录页面
@@ -21,12 +28,42 @@ export default new Router({
     component: resolve => require(['@/views/index/index'], resolve),
     children: [
       {
-        path: '/', //首页默认显示
-        name: 'index',
-        component: resolve => require(['@/components/statisticsCharts/chartsIndex'], resolve)
+        path: '/home', //首页默认显示
+        name: 'home',
+        component: resolve => require(['@/views/home/list'], resolve)
       },
       {
-        path: '/sysuser', //账号管理
+        path: '/brandShopList', //商品
+        name: 'brandShopList',
+        component: resolve => require(['@/views/shop/list'], resolve)
+      },
+      {
+        path: '/addShop', //新增商品
+        name: 'addShop',
+        component: resolve => require(['@/views/shop/addShop'], resolve)
+      },
+      {
+        path: '/addShopNew', //新增商品
+        name: 'addShopNew',
+        component: resolve => require(['@/views/shop/addShopNew'], resolve)
+      },
+      {
+        path: '/brandFreightSet', //运费模板
+        name: 'brandFreightSet',
+        component: resolve => require(['@/views/freightSset/list'], resolve)
+      },
+      {
+        path: '/addFreightSset', //运费模板
+        name: 'addFreightSset',
+        component: resolve => require(['@/views/freightSset/addFreightSset'], resolve)
+      },
+      {
+        path: '/commodityList', //属性设置
+        name: 'commodityList',
+        component: resolve => require(['@/views/commodityList/list'], resolve)
+      },
+      {
+        path: '/staffSetting', //账号管理
         name: 'staffSetting',
         component: resolve => require(['@/components/authorityManage/staffSetting'], resolve)
       },
@@ -36,17 +73,7 @@ export default new Router({
         component: resolve => require(['@/components/authorityManage/staffSetting-edit'], resolve)
       },
       {
-        path: '/syspermission', //权限管理
-        name: 'jurisdiction',
-        component: resolve => require(['@/components/authorityManage/jurisdiction'], resolve)
-      },
-      {
-        path: '/jurisdictionEdit', //权限管理编辑
-        name: 'jurisdictionEdit',
-        component: resolve => require(['@/components/authorityManage/jurisdiction-edit'], resolve)
-      },
-      {
-        path: '/sysrole', //岗位管理
+        path: '/userManage', //岗位管理
         name: 'userManage',
         component: resolve => require(['@/components/authorityManage/userManage'], resolve)
       },
@@ -56,186 +83,102 @@ export default new Router({
         component: resolve => require(['@/components/authorityManage/userManage-edit'], resolve)
       },
       {
-        path: '/sysmallManage', //总平台商场管理
-        name: 'sysmallManage',
-        component: resolve => require(['@/components/sysManage/sysMallManage'], resolve)
+        path: '/brandBee', //蜜蜂列表
+        name: 'brandBee',
+        component: resolve => require(['@/views/bee/list'], resolve)
       },
       {
-        path: '/sysMallAdd', //总平台商场新增
-        name: 'sysMallAdd',
-        component: resolve => require(['@/components/sysManage/sysMallAdd'], resolve)
+        path: '/beeAdd', //蜜蜂新增
+        name: 'beeAdd',
+        component: resolve => require(['@/views/bee/add'], resolve)
       },
       {
-        path: '/sysMallDetail', //总平台商场详情
-        name: 'sysMallDetail',
-        component: resolve => require(['@/components/sysManage/sysMallDetail'], resolve)
+        path: '/beeEdit', //蜜蜂编辑
+        name: 'beeEdit',
+        component: resolve => require(['@/views/bee/edit'], resolve)
       },
       {
-        path: '/malldata', //商场资料
-        name: 'mallData',
-        component: resolve => require(['@/components/mallManage/mallData'], resolve)
+        path: '/brandInfo', //品牌资料
+        name: 'brandInfo',
+        component: resolve => require(['@/views/brandData/brandInfo'], resolve)
       },
       {
-        path: '/brandAccount', //商场品牌账号管理
-        name: 'brandAccount',
-        component: resolve => require(['@/components/mallManage/brandAccount'], resolve)
+        path: '/brandQuickOrder', //快速下单
+        name: 'brandQuickOrder',
+        component: resolve => require(['@/views/order/quickOrder/list'], resolve)
       },
       {
-        path: '/brandAccountEdit', //商场品牌管理
-        name: 'brandAccountEdit',
-        component: resolve => require(['@/components/mallManage/brandAccountEdit'], resolve)
+        path: '/quickOrderDetail', //快速下单详情
+        name: 'quickOrderDetail',
+        component: resolve => require(['@/views/order/quickOrder/detail'], resolve)
       },
       {
-        path: '/sysBrand', //总后台品牌管理
-        name: 'sysBrand',
-        component: resolve => require(['@/components/sysManage/sysBrand'], resolve)
+        path: '/brandQuickSale', //快速售后
+        name: 'brandQuickSale',
+        component: resolve => require(['@/views/order/afterSale/list'], resolve)
       },
       {
-        path: '/sysBrandEdit', //总后台品牌管理查看
-        name: 'sysBrandEdit',
-        component: resolve => require(['@/components/sysManage/sysBrandEdit'], resolve)
+        path: '/brandSelfOrder', //自主下单
+        name: 'brandSelfOrder',
+        component: resolve => require(['@/views/order/selfOrder/list'], resolve)
       },
       {
-        path: '/sysBrandBeesgo', //总平台品牌蜜蜂
-        name: 'sysBrandBeesgo',
-        component: resolve => require(['@/components/sysManage/sysBrandBeesgo'], resolve)
+        path: '/selfOrderDetail', //自主下单详情
+        name: 'selfOrderDetail',
+        component: resolve => require(['@/views/order/selfOrder/detail'], resolve)
       },
       {
-        path: '/sysSetup', //总平台系统设置
-        name: 'sysSetup',
-        component: resolve => require(['@/components/sysManage/sysSetup'], resolve)
+        path: '/brandSelfSale', //自主售后
+        name: 'brandSelfSale',
+        component: resolve => require(['@/views/order/afterSale/list'], resolve)
       },
       {
-        path: '/sysShopClassList', //商品分类管理
-        name: 'sysShopClassList',
-        component: resolve => require(['@/components/sysManage/sysShopClassList'], resolve)
-      },
-      {
-        path: '/sysShopClassListEdit', //商品分类管理
-        name: 'sysShopClassListEdit',
-        component: resolve => require(['@/components/sysManage/sysShopClassListEdit'], resolve)
-      },
-      {
-        path: '/sysshopAdmin', //商品管理
-        name: 'sysshopAdmin',
-        component: resolve => require(['@/components/sysManage/sysshopAdmin'], resolve)
-      },
-      {
-        path: '/sysShopInfo', //商品管理查看
-        name: 'sysShopInfo',
-        component: resolve => require(['@/components/sysManage/sysShopInfo'], resolve)
-      },
-      {
-        path: '/syscommodityList', //商品属性管理
-        name: 'syscommodityList',
-        component: resolve => require(['@/components/sysManage/syscommodityList'], resolve)
+        path: '/afterSaleDetail', //售后详情
+        name: 'afterSaleDetail',
+        component: resolve => require(['@/views/order/afterSale/detail'], resolve)
+      },  {
+        path: '/logistics', //售后详情
+        name: 'logistics',
+        component: resolve => require(['@/views/order/logistics'], resolve)
       },{
-        path: '/sysOrderList', //订单管理
-        name: 'sysOrderList',
-        component: resolve => require(['@/components/orderManage/saleOrderList'], resolve)
+        path: '/brandDiscount', //优惠券列表
+        name: 'brandDiscount',
+        component: resolve => require(['@/views/discount/list'], resolve)
       },
       {
-        path: '/sysSelfAfterSale', //自主售后管理列表
-        name: 'sysSelfAfterSale',
-        component: resolve => require(['@/components/orderManage/selfAfterSaleList'], resolve)
-      }, {
-        path: '/sysQuirkAfterSale', //自主售后管理列表
-        name: 'sysQuirkAfterSale',
-        component: resolve => require(['@/components/orderManage/quirkAfterSaleList'], resolve)
-      },{
-        path: '/sysAfterSaleDetail', //自主售后管理列表
-        name: 'sysAfterSaleDetail',
-        component: resolve => require(['@/components/orderManage/afterSaleDetail'], resolve)
+        path: '/discountEdit', //优惠券新增编辑
+        name: 'discountEdit',
+        component: resolve => require(['@/views/discount/edit'], resolve)
       },
       {
-        path: '/sysCouponList', //优惠券管理
-        name: 'sysCouponList',
-        component: resolve => require(['@/components/couponManage/list'], resolve)
-      }, 
-      {
-        path: '/sysCouponEdit', //优惠券新增编辑
-        name: 'sysCouponEdit',
-        component: resolve => require(['@/components/couponManage/edit'], resolve)
+        path: '/brandActive', //优惠活动列表
+        name: 'brandActive',
+        component: resolve => require(['@/views/active/list'], resolve)
       },
       {
-        // path: '/sysActive', //总平台活动
-        path: '/sysDiscountsBanner', //优惠banner
-        name: 'sysDiscountsBanner',
-        component: resolve => require(['@/components/discountBannerManage/index'], resolve)
-      },
-      {
-        path: '/discountsAddBanner', //优惠Addbanner
-        name: 'discountsAddBanner',
-        component: resolve => require(['@/components/discountBannerManage/editBanner'], resolve)
-      },
-      {
-        path: '/sysSetActivity', //首页设置-活动设置
-        name: 'sysSetActivity',
-        component: resolve => require(['@/components/sysSetActivity/index'], resolve)
-      },
-      {
-        path: '/sysSetIndexBanner', //首页设置-banner设置
-        name: 'sysSetIndexBanner',
-        component: resolve => require(['@/components/bannerManage/index'], resolve)
-      },
-      {
-        path: '/addBannerManage', //首页设置- add-banner
-        name: 'addBannerManage',
-        component: resolve => require(['@/components/bannerManage/add'], resolve)
-      },
-      { path: '/sysAdminActive', //优惠券新增编辑
-        name: 'sysAdminActive',
-        component: resolve => require(['@/components/sysManage/sysActiveManage'], resolve)
-      },
-      {
-        path: '/addActive', //总平台活动新增编辑
+        path: '/addActive', //优惠活动列表
         name: 'addActive',
-        component: resolve => require(['@/components/sysManage/sysaddActivManage'], resolve)
+        component: resolve => require(['@/views/active/addActive'], resolve)
       },
       {
-        path: '/sysmallActive', //总平台-商场活动
-        name: 'sysmallActive',
-        component: resolve => require(['@/components/mallManage/sysActiveManage'], resolve)
+        path: '/sysuser', //账号管理
+        name: 'staffSetting',
+        component: resolve => require(['@/views/authorityManage/staffSetting'], resolve)
       },
       {
-        path: '/sysActiveBraner', //总平台-品牌活动
-        name: 'sysActiveBraner',
-        component: resolve => require(['@/components/sysManage/sysActiveBraner'], resolve)
+        path: '/staffSettingEdit', //账号管理编辑
+        name: 'staffSettingEdit',
+        component: resolve => require(['@/views/authorityManage/staffSetting-edit'], resolve)
       },
       {
-        path: '/addmallActive', //总平台活动新增编辑
-        name: 'addmallActive',
-        component: resolve => require(['@/components/mallManage/sysaddActivManage'], resolve)
+        path: '/sysrole', //岗位管理
+        name: 'userManage',
+        component: resolve => require(['@/views/authorityManage/userManage'], resolve)
       },
       {
-        path: '/mallActive', //商场活动管理
-        name: 'mallActive',
-        component: resolve => require(['@/components/mallManage/mallActive'], resolve)
-      },
-      {
-        path: '/sysUserManage', //总后台用户管理
-        name: 'sysUserManage',
-        component: resolve => require(['@/components/authorityManage/sysUserManage'], resolve)
-      },
-      {
-        path: '/brandFreightSet', //运费模板管理
-        name: 'brandFreightSet',
-        component: resolve => require(['@/components/freightSetManage/list'], resolve)
-      },
-      {
-        path: '/addFreight', //运费模板新增
-        name: 'addFreight',
-        component: resolve => require(['@/components/freightSetManage/addFreight'], resolve)
-      },
-      {
-        path: '/sysBrandLogo', //总后台品牌logo管理
-        name: 'sysBrandLogo',
-        component: resolve => require(['@/components/sysManage/sysBrandLogo'], resolve)
-      },
-      {
-        path: '/sysAddBrandLogo', //总后台品牌logo新增
-        name: 'sysAddBrandLogo',
-        component: resolve => require(['@/components/sysManage/sysAddBrandLogo'], resolve)
+        path: '/userManageEdit', //岗位管理编辑
+        name: 'userManageEdit',
+        component: resolve => require(['@/views/authorityManage/userManage-edit'], resolve)
       }
     ]
   }]

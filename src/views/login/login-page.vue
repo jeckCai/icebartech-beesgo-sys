@@ -1,7 +1,7 @@
 <template>
   <div class="wrap">
     <div class="login-wrap">
-      <div class="login-title">蜜蜂GO后台管理系统</div>
+      <div class="login-title">蜜蜂GO品牌管理系统</div>
       <div id="darkbannerwrap"></div>
       <input type="text" @keyup.enter="login" v-model="account" placeholder="请输入账号">
       <input type="password" @keyup.enter="login" v-model="password" placeholder="请输入密码">
@@ -32,7 +32,7 @@
           'username': this.account,
           'password': this.password,
           'loginType':'LOGIN_ADMIN_PASSWORD',
-          'iceAppId':'bee20191105@ADMIN'
+          'iceAppId':'bee20191105@BRANCH'
         };
         this.loginhandler(param);
       }

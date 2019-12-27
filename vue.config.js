@@ -2,9 +2,9 @@
  * @Descripttion: 描述
  * @version: 版本
  * @Author: xiongbin
- * @Date: 2019-11-11 10:21:54
+ * @Date: 2019-11-08 14:54:24
  * @LastEditors: 1490251116@qq.com
- * @LastEditTime: 2019-11-11 16:26:28
+ * @LastEditTime: 2019-11-29 16:31:59
  */
 var path = require('path')
 const resolve = dir => path.join(__dirname, dir)
@@ -18,7 +18,7 @@ module.exports = {
   parallel: undefined,
   css: undefined,
   devServer: {
-    port: "8787", //代理端口
+    port: "9999", //代理端口
     open: false, //项目启动时是否自动打开浏览器，我这里设置为false,不打开，true表示打开
     proxy: {
       '/api': { //代理api
@@ -35,9 +35,5 @@ module.exports = {
     config.resolve.alias   
       .set('jquery', resolve('./node_modules/jquery/src/jquery.js'))
   },
-
-  // externals:{
-  //     "AMap": "AMap",
-  // }
    
 }

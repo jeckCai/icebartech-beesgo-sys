@@ -1,24 +1,20 @@
 <template>
   <div class="warp">
     <div class="add-box">
-      <div>角色管理</div>
-      <el-button @click="editRoleManagement()">新增角色</el-button>
+      <div>岗位管理</div>
+       <el-button @click="editRoleManagement()">新增岗位</el-button>
     </div>
     <div class>
       <el-table :data="tableData" style="width: 100%">
-        <el-table-column prop="roleName" label="角色名称" width="180"></el-table-column>
-        <el-table-column prop="roleDesc" label="描述" width="180"></el-table-column>
-        <el-table-column label="拥有权限" show-overflow-tooltip>
-          <template slot-scope="scope">
-            <span v-for="(i,key) in scope.row.permissions" :key="key">
-              {{i.name}}
-              <i v-if="key!==scope.row.permissions.length-1">，</i>
-            </span>
-          </template>
-        </el-table-column>
+        <el-table-column prop="roleName" label="岗位名称" width="180"></el-table-column>
+        <el-table-column prop="roleDescribe" label="描述" width="180"></el-table-column>
+        <el-table-column prop="topPermissionNames" label="拥有权限"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="editRoleManagement(scope.row.id,scope.row)">编辑</el-button>
+            <el-button
+              size="mini"
+              @click="editRoleManagement(scope.row.id,scope.row.topPermissionNames)"
+            >编辑</el-button>
             <el-button size="mini" type="danger" @click="roleDel(scope.row.id)">删除</el-button>
           </template>
         </el-table-column>
@@ -38,7 +34,7 @@
 </template>
 
 <script>
-import { httpPost, formGet, formPost, httpGet,httpDel } from "../../util/post";
+import { httpPost, formPost, httpPut } from "../../util/post";
 export default {
   data() {
     return {
@@ -47,7 +43,7 @@ export default {
       },
       currentPage: 1,
       pageSize: 10,
-      pageNumber: 1,
+      pageIndex: 1,
       pageCount: null,
       tableData: []
     };
@@ -62,37 +58,41 @@ export default {
       this.roleList();
     },
     handleCurrentChange(val) {
-      this.pageNumber = val;
+      this.pageIndex = val;
       this.roleList();
     },
     roleList() {
       let param = {
-        pageNumber: this.pageNumber,
+        pageIndex: this.pageIndex,
         pageSize: this.pageSize
       };
-      formGet("ROLELIST", param).then(res => {
+      formPost("FINDAPPROLEBYPAGE", param).then(res => {
         if (!res) return;
-        this.tableData = res.data.records;
-        this.pageCount = res.data.total;
+        this.tableData = res.bussData;
+        this.pageCount = res.count;
       });
     },
-    editRoleManagement(rlid, description) {
-      sessionStorage.setItem("description", JSON.stringify(description));
+    editRoleManagement(rlid, pName) {
+      console.log(rlid);
       this.$router.push({
         path: "/userManageEdit",
         query: {
           rlid: rlid || 0
+          // pName:pName||''
         }
       });
     },
     roleDel(id) {
+      let param = {
+        roleId: id
+      };
       this.$confirm("确定删除吗?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          httpDel("ROLEDELETE", id).then(res => {
+          formPost("DELETEROLEBYROLEID", param).then(res => {
             if (!res) return;
             this.$message.success("删除成功");
             this.roleList();

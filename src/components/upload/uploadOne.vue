@@ -153,7 +153,7 @@ export default {
     },
     deleteImg() {
       this.img = "";
-      this.$emit("upLoadSuccess", { fileKey: "", fileUrl: "" });
+      this.$emit("upLoadSuccess", { fileKey: "", fileUrl: ""});
       this.$emit("update:imgUrl","")
       this.$emit("deleteImg",this.keyIndex)
     }

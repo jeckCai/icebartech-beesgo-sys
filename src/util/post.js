@@ -12,12 +12,6 @@ export function formPost (url, param = {}) {
     axios_("post",findUrl(url),stringify(Object.assign(param)),resolve)
   })
 }
-export function strPost (url, param, params) {
-  let connection = param ? `${findUrl(url)}${param}` : findUrl(url)
-  return new Promise(function (resolve, reject) {
-    axios_("post",connection,param,resolve)
-  })
-}
 export function httpGet (url, param, params) {
   let connection = param ? `${findUrl(url)}/${param}` : findUrl(url)
   return new Promise(function (resolve, reject) {
@@ -73,17 +67,14 @@ export function downExel (url, param = {}) {
   window.open(connection, '_blank')
 }
 function axios_(method,url,data,resolve){
-  var header={
-    "loginType":'LOGIN_ADMIN_PASSWORD'
-  }
-  if(sessionStorage.getItem('token')){
-    header.token=sessionStorage.getItem('token')
-  }
   axios({
     method:method,
     url: url,
     data: data,
-    headers:header
+    headers:{
+      "token": sessionStorage.getItem('sessionId'),
+      "loginType":'LOGIN_ADMIN_PASSWORD'
+    }
   }).then(res => {
     resolve(res);
   })
@@ -91,7 +82,7 @@ function axios_(method,url,data,resolve){
 // get传值，拼接到URL后面以为key=value形式
 export function getString (url, id) {
   const connection = findUrl(url) + "?" + stringify({
-    token: sessionStorage.getItem('token')
+    token: sessionStorage.getItem('sessionId')
   }) + "&" + "id" + "=" + id;
   return new Promise(function (resolve, reject) {
     axios.post(connection).then(res => {
